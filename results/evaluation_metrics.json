@@ -1,0 +1,30 @@
+{
+    "Random Forest": {
+        "Accuracy": 0.9985,
+        "Precision": 0.9975,
+        "Recall": 0.9962,
+        "F1-Score": 0.9969,
+        "ROC-AUC": 0.9999
+    },
+    "XGBoost": {
+        "Accuracy": 0.9989,
+        "Precision": 0.9974,
+        "Recall": 0.9979,
+        "F1-Score": 0.9977,
+        "ROC-AUC": 0.9999
+    },
+    "Autoencoder": {
+        "Accuracy": 0.8408,
+        "Precision": 0.9255,
+        "Recall": 0.3789,
+        "F1-Score": 0.5377,
+        "ROC-AUC": 0.792
+    },
+    "Hybrid IDS": {
+        "Accuracy": 0.9914,
+        "Precision": 0.9679,
+        "Recall": 0.9979,
+        "F1-Score": 0.9827,
+        "ROC-AUC": 0.9999
+    }
+}

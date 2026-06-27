@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intelligent IDS Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0a0e1a;
+      --surface:   #111827;
+      --surface2:  #1a2235;
+      --border:    rgba(99,102,241,0.18);
+      --accent:    #6366f1;
+      --accent2:   #06b6d4;
+      --accent3:   #10b981;
+      --danger:    #ef4444;
+      --warn:      #f59e0b;
+      --text:      #f1f5f9;
+      --muted:     #94a3b8;
+      --glow:      rgba(99,102,241,0.25);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Animated background ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(99,102,241,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(6,182,212,0.10) 0%, transparent 60%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .wrapper { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,14,26,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; gap: 16px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 700; letter-spacing: -.3px;
+    }
+    .nav-brand .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent3);
+      box-shadow: 0 0 8px var(--accent3);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.3)} }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      padding: 6px 14px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      text-decoration: none; transition: all .2s;
+    }
+    .nav-links a:hover { background: var(--surface2); color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 0 48px;
+      text-align: center;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 99px;
+      background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3);
+      font-size: 12px; font-weight: 600; color: #a5b4fc;
+      letter-spacing: .5px; text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 800; letter-spacing: -1.5px; line-height: 1.12;
+      background: linear-gradient(135deg, #fff 30%, #818cf8 70%, #06b6d4 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 16px; color: var(--muted); max-width: 600px;
+      margin: 0 auto 40px; line-height: 1.7;
+    }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+    }
+    .hero-stat {
+      padding: 10px 22px; border-radius: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hero-stat span { font-family: 'JetBrains Mono', monospace; color: var(--accent2); }
+
+    /* ── SECTION TITLES ── */
+    .section { padding: 48px 0; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: clamp(20px, 3vw, 28px); font-weight: 700;
+      letter-spacing: -.5px; margin-bottom: 4px;
+    }
+    .section-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+
+    /* ── METRIC CARDS ── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px 20px;
+      position: relative; overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+      cursor: default;
+    }
+    .metric-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px var(--glow);
+    }
+    .metric-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--bar-color, var(--accent));
+    }
+    .metric-card .label { font-size: 12px; color: var(--muted); font-weight: 500; margin-bottom: 10px; }
+    .metric-card .value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 32px; font-weight: 700;
+      color: var(--val-color, var(--text));
+    }
+    .metric-card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* ── COMPARISON TABLE ── */
+    .table-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface2); }
+    th {
+      padding: 14px 20px; text-align: left;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--muted);
+    }
+    td {
+      padding: 14px 20px; font-size: 14px;
+      border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+    }
+    tr:hover td { background: var(--surface2); }
+    .model-name { font-family: 'Inter', sans-serif; font-weight: 600; color: var(--text); }
+    .best { color: var(--accent3); font-weight: 700; }
+    .highlight-row td { background: rgba(99,102,241,0.06); }
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 99px;
+      font-size: 10px; font-weight: 700; font-family: 'Inter', sans-serif;
+      letter-spacing: .5px; text-transform: uppercase;
+    }
+    .badge-primary { background: rgba(99,102,241,0.2); color: #a5b4fc; }
+    .badge-green   { background: rgba(16,185,129,0.2); color: #6ee7b7; }
+
+    /* ── PLOT GRID ── */
+    .plot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+      gap: 20px;
+    }
+    .plot-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      transition: transform .25s, box-shadow .25s;
+    }
+    .plot-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.4);
+    }
+    .plot-card .plot-header {
+      padding: 16px 20px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .plot-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .plot-header h3 { font-size: 14px; font-weight: 600; }
+    .plot-header p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .plot-card img {
+      width: 100%; display: block;
+      background: #0f1623;
+    }
+    .plot-full { grid-column: 1 / -1; }
+
+    /* ── ARCHITECTURE ── */
+    .arch-flow {
+      display: flex; align-items: stretch; gap: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden; flex-wrap: wrap;
+    }
+    .arch-step {
+      flex: 1; min-width: 150px; padding: 28px 20px;
+      text-align: center; position: relative;
+      border-right: 1px solid var(--border);
+      transition: background .2s;
+    }
+    .arch-step:last-child { border-right: none; }
+    .arch-step:hover { background: var(--surface2); }
+    .arch-step .arch-icon {
+      font-size: 28px; margin-bottom: 10px;
+      display: block;
+    }
+    .arch-step h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .arch-step p  { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .arch-arrow {
+      display: flex; align-items: center; color: var(--accent);
+      font-size: 20px; padding: 0 4px; flex-shrink: 0;
+    }
+
+    /* ── SHAP section ── */
+    .shap-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+    .shap-grid .plot-card:first-child { grid-row: 1 / 3; }
+
+    /* ── GEN RESULT ── */
+    .gen-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      align-items: start;
+    }
+    .gen-left h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .gen-left p  { font-size: 13px; color: var(--muted); line-height: 1.7; }
+    .insight {
+      margin-top: 16px; padding: 14px;
+      background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 10px; border-left: 3px solid var(--warn);
+    }
+    .insight p { font-size: 12px; color: #fcd34d; line-height: 1.6; }
+    .gen-metrics { display: flex; flex-direction: column; gap: 12px; }
+    .gen-metric { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface2); border-radius: 10px; }
+    .gen-metric .gm-label { font-size: 13px; color: var(--muted); }
+    .gen-metric .gm-val   { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: var(--warn); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 24px; text-align: center;
+      font-size: 13px; color: var(--muted);
+    }
+    footer strong { color: var(--text); }
+
+    /* ── SKELETON LOADER ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 8px; min-height: 40px;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ── COUNTER ANIMATION ── */
+    .count-up { transition: all .6s ease-out; }
+
+    @media (max-width: 768px) {
+      .shap-grid { grid-template-columns: 1fr; }
+      .shap-grid .plot-card:first-child { grid-row: auto; }
+      .gen-card { grid-template-columns: 1fr; }
+      .arch-flow { flex-direction: column; }
+      .arch-step { border-right: none; border-bottom: 1px solid var(--border); }
+      .arch-step:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <div class="dot"></div>
+      IDS Dashboard
+    </div>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#models">Models</a>
+      <a href="#eda">EDA</a>
+      <a href="#features">Features</a>
+      <a href="#autoencoder">Autoencoder</a>
+      <a href="#shap">SHAP</a>
+      <a href="#generalization">Generalization</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="wrapper">
+  <section class="hero">
+    <div class="hero-badge">
+      <div style="width:6px;height:6px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;animation:pulse 2s infinite"></div>
+      Hybrid IDS &bull; All Phases Complete
+    </div>
+    <h1>Intelligent Intrusion Detection<br>System Dashboard</h1>
+    <p>A production-grade hybrid IDS combining XGBoost and a PyTorch Autoencoder to detect known attacks and zero-day anomalies in encrypted network traffic.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">Dataset <span>2.2M flows</span></div>
+      <div class="hero-stat">Features <span>78 → 39</span></div>
+      <div class="hero-stat">XGBoost Accuracy <span id="hero-acc">–</span></div>
+      <div class="hero-stat">ROC-AUC <span id="hero-auc">–</span></div>
+      <div class="hero-stat">AE Threshold <span id="hero-thr">–</span></div>
+    </div>
+  </section>
+
+  <!-- SYSTEM ARCHITECTURE -->
+  <section class="section" id="overview">
+    <div class="section-label">Architecture</div>
+    <div class="section-title">Two-Stage Decision Engine</div>
+    <div class="section-sub">Every packet is evaluated by both models before a final verdict is issued.</div>
+    <div class="arch-flow">
+      <div class="arch-step">
+        <span class="arch-icon">🌐</span>
+        <h4>Network Traffic</h4>
+        <p>Raw encrypted flow features captured from the network interface</p>
+      </div>
+      <div class="arch-step">
+        <span class="arch-icon">⚙️</span>
+        <h4>Preprocessing</h4>
+        <p>Clean, normalize, and select the top 39 optimized features</p>
+      </div>
+      <div class="arch-step">
+        <span class="arch-icon">🌲</span>
+        <h4>Stage 1 — XGBoost</h4>
+        <p>Gradient-boosted classifier for known attack signatures (DoS, DDoS, PortScan…)</p>
+      </div>
+      <div class="arch-step">
+        <span class="arch-icon">🧠</span>
+        <h4>Stage 2 — Autoencoder</h4>
+        <p>Benign-only trained neural net flags packets with high reconstruction error</p>
+      </div>
+      <div class="arch-step">
+        <span class="arch-icon">🚨</span>
+        <h4>Decision Engine</h4>
+        <p>Final ALERT or ALLOW with SHAP explanation for every flagged packet</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- METRIC CARDS -->
+  <section class="section" id="models">
+    <div class="section-label">Performance</div>
+    <div class="section-title">Hybrid IDS — Key Metrics</div>
+    <div class="section-sub">Evaluated on 442,406 unseen test flows from CICIDS2017.</div>
+    <div class="metric-grid">
+      <div class="metric-card" style="--bar-color:#6366f1;--val-color:#a5b4fc">
+        <div class="label">Accuracy</div>
+        <div class="value count-up" id="m-acc">–</div>
+        <div class="sub">Hybrid IDS on test set</div>
+      </div>
+      <div class="metric-card" style="--bar-color:#10b981;--val-color:#6ee7b7">
+        <div class="label">Recall (Catch Rate)</div>
+        <div class="value count-up" id="m-rec">–</div>
+        <div class="sub">Attacks correctly flagged</div>
+      </div>
+      <div class="metric-card" style="--bar-color:#06b6d4;--val-color:#67e8f9">
+        <div class="label">Precision</div>
+        <div class="value count-up" id="m-prec">–</div>
+        <div class="sub">Flagged = truly malicious</div>
+      </div>
+      <div class="metric-card" style="--bar-color:#f59e0b;--val-color:#fcd34d">
+        <div class="label">F1-Score</div>
+        <div class="value count-up" id="m-f1">–</div>
+        <div class="sub">Harmonic mean of P & R</div>
+      </div>
+      <div class="metric-card" style="--bar-color:#8b5cf6;--val-color:#c4b5fd">
+        <div class="label">ROC-AUC</div>
+        <div class="value count-up" id="m-auc">–</div>
+        <div class="sub">Area under the ROC curve</div>
+      </div>
+      <div class="metric-card" style="--bar-color:#ef4444;--val-color:#fca5a5">
+        <div class="label">Zero-Day Caught</div>
+        <div class="value" id="m-zd">3,299</div>
+        <div class="sub">Anomalies missed by XGBoost</div>
+      </div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div class="section-sub" style="margin-top:32px;margin-bottom:16px">All four models compared head-to-head on the same test set.</div>
+    <div class="table-card">
+      <table id="comparison-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1-Score</th>
+            <th>ROC-AUC</th>
+          </tr>
+        </thead>
+        <tbody id="table-body">
+          <tr><td colspan="6"><div class="skeleton" style="height:44px;margin:8px 0"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- EDA -->
+  <section class="section" id="eda">
+    <div class="section-label">Phase 2</div>
+    <div class="section-title">Exploratory Data Analysis</div>
+    <div class="section-sub">Understanding the dataset before building any model.</div>
+    <div class="plot-grid">
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(99,102,241,.15)">📊</div>
+          <div>
+            <h3>Class Distribution</h3>
+            <p>Benign vs. Attack sample counts</p>
+          </div>
+        </div>
+        <img src="/results/class_distribution.png" alt="Class Distribution" loading="lazy" />
+      </div>
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(6,182,212,.15)">🌡️</div>
+          <div>
+            <h3>Correlation Heatmap</h3>
+            <p>Top 20 features most correlated with Label</p>
+          </div>
+        </div>
+        <img src="/results/correlation_heatmap.png" alt="Correlation Heatmap" loading="lazy" />
+      </div>
+      <div class="plot-card plot-full">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(16,185,129,.15)">📈</div>
+          <div>
+            <h3>Feature Distributions</h3>
+            <p>Top 5 features — Benign vs. Attack split (log scale)</p>
+          </div>
+        </div>
+        <img src="/results/top_features_histograms.png" alt="Feature Histograms" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURE OPTIMIZATION -->
+  <section class="section" id="features">
+    <div class="section-label">Phase 4</div>
+    <div class="section-title">Feature Optimisation — 78 → 39</div>
+    <div class="section-sub">50% fewer features. 99% of the predictive power retained.</div>
+    <div class="plot-grid">
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(139,92,246,.15)">🏆</div>
+          <div>
+            <h3>Top 30 Feature Importances</h3>
+            <p>XGBoost intrinsic feature scores</p>
+          </div>
+        </div>
+        <img src="/results/feature_importance.png" alt="Feature Importance" loading="lazy" />
+      </div>
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(245,158,11,.15)">📉</div>
+          <div>
+            <h3>Cumulative Importance Curve</h3>
+            <p>How many features reach 99% explained importance</p>
+          </div>
+        </div>
+        <img src="/results/cumulative_importance.png" alt="Cumulative Importance" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTOENCODER -->
+  <section class="section" id="autoencoder">
+    <div class="section-label">Phase 5 &amp; 6</div>
+    <div class="section-title">Autoencoder Anomaly Detection</div>
+    <div class="section-sub">Trained exclusively on benign traffic — high MSE = unknown attack.</div>
+    <div class="plot-grid">
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(239,68,68,.15)">🔴</div>
+          <div>
+            <h3>Reconstruction Error Distribution</h3>
+            <p>Normal (blue) vs. Attack (red) — threshold as dotted line</p>
+          </div>
+        </div>
+        <img src="/results/reconstruction_error.png" alt="Reconstruction Error" loading="lazy" />
+      </div>
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(99,102,241,.15)">🎯</div>
+          <div>
+            <h3>Hybrid IDS Confusion Matrix</h3>
+            <p>Final two-stage pipeline on 442k test flows</p>
+          </div>
+        </div>
+        <img src="/results/hybrid_confusion_matrix.png" alt="Confusion Matrix" loading="lazy" />
+      </div>
+      <div class="plot-card plot-full">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(16,185,129,.15)">📊</div>
+          <div>
+            <h3>Model Comparison — ROC-AUC &amp; Metrics</h3>
+            <p>All four models evaluated side-by-side on the same test set</p>
+          </div>
+        </div>
+        <img src="/results/model_comparison.png" alt="Model Comparison" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- SHAP -->
+  <section class="section" id="shap">
+    <div class="section-label">Phase 9</div>
+    <div class="section-title">SHAP Explainability</div>
+    <div class="section-sub">Making every model decision interpretable for SOC analysts.</div>
+    <div class="shap-grid">
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(6,182,212,.15)">🌊</div>
+          <div>
+            <h3>Beeswarm Plot</h3>
+            <p>Feature impact direction across all samples</p>
+          </div>
+        </div>
+        <img src="/results/shap_beeswarm.png" alt="SHAP Beeswarm" loading="lazy" />
+      </div>
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(99,102,241,.15)">📊</div>
+          <div>
+            <h3>Global Importance</h3>
+            <p>Mean |SHAP| per feature (top 20)</p>
+          </div>
+        </div>
+        <img src="/results/shap_summary_bar.png" alt="SHAP Summary Bar" loading="lazy" />
+      </div>
+      <div class="plot-card">
+        <div class="plot-header">
+          <div class="plot-icon" style="background:rgba(239,68,68,.15)">🔍</div>
+          <div>
+            <h3>Waterfall — Single Prediction</h3>
+            <p>Why one specific packet was flagged as ATTACK</p>
+          </div>
+        </div>
+        <img src="/results/shap_waterfall.png" alt="SHAP Waterfall" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- GENERALIZATION -->
+  <section class="section" id="generalization">
+    <div class="section-label">Phase 8</div>
+    <div class="section-title">Generalization Test — UNSW-NB15</div>
+    <div class="section-sub">Cross-dataset evaluation on 246,996 completely unseen network flows.</div>
+    <div class="gen-card">
+      <div class="gen-left">
+        <h3>Dataset Shift Analysis</h3>
+        <p>Our Hybrid IDS was trained entirely on CICIDS2017 traffic. Testing on UNSW-NB15 — a dataset with different feature names, attack families, and lab environments — revealed significant performance degradation.</p>
+        <div class="insight">
+          <p><strong style="color:#fbbf24">Why this matters:</strong> This is a classic example of Dataset Shift (Covariate Shift). Only ~24 of 78 required CICIDS2017 features could be semantically mapped from UNSW-NB15. This finding motivates the need for transfer learning, domain adaptation, and online/continual learning in production IDS deployments.</p>
+        </div>
+      </div>
+      <div class="gen-metrics">
+        <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:4px">UNSW-NB15 Results</div>
+        <div class="gen-metric"><span class="gm-label">Accuracy</span><span class="gm-val" id="gen-acc">–</span></div>
+        <div class="gen-metric"><span class="gm-label">Precision</span><span class="gm-val" id="gen-prec">–</span></div>
+        <div class="gen-metric"><span class="gm-label">Recall</span><span class="gm-val" id="gen-rec">–</span></div>
+        <div class="gen-metric"><span class="gm-label">F1-Score</span><span class="gm-val" id="gen-f1">–</span></div>
+        <div style="margin-top:16px">
+          <img src="/results/generalization_confusion_matrix.png" alt="Generalization Matrix" style="width:100%;border-radius:10px" loading="lazy" />
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  Built with <strong>XGBoost</strong> · <strong>PyTorch</strong> · <strong>SHAP</strong> · <strong>Flask</strong> &mdash;
+  Intelligent IDS for Encrypted Network Traffic &copy; 2026
+</footer>
+
+<script>
+  const pct = v => `${(v * 100).toFixed(2)}%`;
+  const fmt = (v, decimals = 4) => typeof v === 'number' ? v.toFixed(decimals) : v;
+
+  // Animated counter
+  function animateValue(el, target, suffix = '%', duration = 1200) {
+    const start = performance.now();
+    const from = 0;
+    const to = parseFloat(target);
+    function step(now) {
+      const progress = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      el.textContent = (from + (to - from) * ease).toFixed(2) + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  const MODEL_COLORS = {
+    'Random Forest': '#10b981',
+    'XGBoost':       '#6366f1',
+    'Autoencoder':   '#f59e0b',
+    'Hybrid IDS':    '#06b6d4',
+  };
+
+  fetch('/api/metrics')
+    .then(r => r.json())
+    .then(data => {
+      const ev   = data.evaluation   || {};
+      const gen  = data.generalization || {};
+      const thr  = data.ae_threshold  || 0;
+      const hybrid = ev['Hybrid IDS'] || {};
+
+      // Hero stats
+      const xgb = ev['XGBoost'] || {};
+      document.getElementById('hero-acc').textContent = xgb['Accuracy'] ? pct(xgb['Accuracy']) : '–';
+      document.getElementById('hero-auc').textContent = xgb['ROC-AUC']  ? pct(xgb['ROC-AUC'])  : '–';
+      document.getElementById('hero-thr').textContent = thr ? thr.toFixed(4) : '–';
+
+      // Metric cards (animated)
+      if (hybrid['Accuracy'])  animateValue(document.getElementById('m-acc'),  hybrid['Accuracy']  * 100);
+      if (hybrid['Recall'])    animateValue(document.getElementById('m-rec'),  hybrid['Recall']    * 100);
+      if (hybrid['Precision']) animateValue(document.getElementById('m-prec'), hybrid['Precision'] * 100);
+      if (hybrid['F1-Score'])  animateValue(document.getElementById('m-f1'),   hybrid['F1-Score']  * 100);
+      if (hybrid['ROC-AUC'])   animateValue(document.getElementById('m-auc'),  hybrid['ROC-AUC']   * 100);
+
+      // Comparison table
+      const tbody = document.getElementById('table-body');
+      tbody.innerHTML = '';
+      const models = ['Random Forest', 'XGBoost', 'Autoencoder', 'Hybrid IDS'];
+      const metrics = ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'];
+
+      // Find best per metric
+      const best = {};
+      metrics.forEach(m => {
+        let max = -Infinity, winner = '';
+        models.forEach(mod => {
+          const v = ev[mod]?.[m] ?? -Infinity;
+          if (v > max) { max = v; winner = mod; }
+        });
+        best[m] = winner;
+      });
+
+      models.forEach(mod => {
+        const row = document.createElement('tr');
+        if (mod === 'Hybrid IDS') row.classList.add('highlight-row');
+        const badge = mod === 'Hybrid IDS'
+          ? `<span class="badge badge-primary">Hybrid</span>`
+          : mod === 'XGBoost' ? `<span class="badge badge-green">Best Standalone</span>` : '';
+        row.innerHTML = `<td><span class="model-name" style="color:${MODEL_COLORS[mod]}">${mod}</span> ${badge}</td>`;
+        metrics.forEach(m => {
+          const v = ev[mod]?.[m];
+          const isBest = best[m] === mod;
+          row.innerHTML += `<td class="${isBest ? 'best' : ''}">${v !== undefined ? pct(v) : '–'}</td>`;
+        });
+        tbody.appendChild(row);
+      });
+
+      // Generalization metrics
+      if (gen['Accuracy'])  document.getElementById('gen-acc').textContent  = pct(gen['Accuracy']);
+      if (gen['Precision']) document.getElementById('gen-prec').textContent = pct(gen['Precision']);
+      if (gen['Recall'])    document.getElementById('gen-rec').textContent  = pct(gen['Recall']);
+      if (gen['F1-Score'])  document.getElementById('gen-f1').textContent   = pct(gen['F1-Score']);
+    })
+    .catch(err => console.error('Failed to load metrics:', err));
+
+  // Intersection Observer for fade-in
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = 1;
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.08 });
+
+  document.querySelectorAll('.plot-card, .metric-card, .gen-card, .arch-flow').forEach(el => {
+    el.style.opacity = 0;
+    el.style.transform = 'translateY(24px)';
+    el.style.transition = 'opacity .5s ease, transform .5s ease';
+    obs.observe(el);
+  });
+</script>
+</body>
+</html>
