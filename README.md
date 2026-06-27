@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Intelligent Intrusion Detection System for Encrypted Network Traffic
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://python.org)
@@ -334,4 +333,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 </div>
 =======
 # Intelligent-Intrusion-Detection-System-for-Encrypted-Network-Traffic
->>>>>>> c233c818dd70e995a3d91f10d1bc0f76d866beef
