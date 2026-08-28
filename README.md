@@ -331,13 +331,6 @@ This result motivates several important research directions including transfer l
 4. **SHAP**: Lundberg, S. M., & Lee, S.-I. (2017). *A Unified Approach to Interpreting Model Predictions*. NeurIPS. [Link](https://arxiv.org/abs/1705.07874)
 5. **PyTorch**: Paszke, A., et al. (2019). *PyTorch: An Imperative Style, High-Performance Deep Learning Library*. NeurIPS. [Link](https://arxiv.org/abs/1912.01703)
 
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
 
 <div align="center">
   <sub>Built as part of a Security Operations Centre (SOC) Research Project.</sub>
