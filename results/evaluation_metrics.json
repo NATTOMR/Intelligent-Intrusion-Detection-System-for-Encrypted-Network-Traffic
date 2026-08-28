@@ -7,24 +7,24 @@
         "ROC-AUC": 0.9999
     },
     "XGBoost": {
-        "Accuracy": 0.9989,
-        "Precision": 0.9974,
-        "Recall": 0.9979,
-        "F1-Score": 0.9977,
+        "Accuracy": 0.999,
+        "Precision": 0.9975,
+        "Recall": 0.9983,
+        "F1-Score": 0.9979,
         "ROC-AUC": 0.9999
     },
     "Autoencoder": {
-        "Accuracy": 0.8408,
-        "Precision": 0.9255,
-        "Recall": 0.3789,
-        "F1-Score": 0.5377,
-        "ROC-AUC": 0.792
+        "Accuracy": 0.8393,
+        "Precision": 0.926,
+        "Recall": 0.3722,
+        "F1-Score": 0.5309,
+        "ROC-AUC": 0.7599
     },
     "Hybrid IDS": {
-        "Accuracy": 0.9914,
-        "Precision": 0.9679,
-        "Recall": 0.9979,
-        "F1-Score": 0.9827,
+        "Accuracy": 0.9917,
+        "Precision": 0.9687,
+        "Recall": 0.9983,
+        "F1-Score": 0.9833,
         "ROC-AUC": 0.9999
     }
 }

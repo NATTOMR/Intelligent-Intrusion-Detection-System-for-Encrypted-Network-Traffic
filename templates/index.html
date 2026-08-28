@@ -134,12 +134,13 @@
       border: 1px solid var(--border);
       border-radius: 16px; padding: 24px 20px;
       position: relative; overflow: hidden;
-      transition: transform .25s, box-shadow .25s;
+      transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: default;
     }
     .metric-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 40px var(--glow);
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(99,102,241,0.25);
+      border-color: rgba(99,102,241,0.5);
     }
     .metric-card::before {
       content: '';
@@ -192,11 +193,12 @@
     .plot-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 16px; overflow: hidden;
-      transition: transform .25s, box-shadow .25s;
+      transition: all .4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .plot-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 16px 48px rgba(0,0,0,.4);
+      transform: translateY(-8px);
+      box-shadow: 0 24px 50px rgba(0,0,0,.5);
+      border-color: rgba(99,102,241,0.4);
     }
     .plot-card .plot-header {
       padding: 16px 20px; border-bottom: 1px solid var(--border);

@@ -1,5 +1,4 @@
 # Intelligent Intrusion Detection System for Encrypted Network Traffic
-
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)](https://python.org)
 [![XGBoost](https://img.shields.io/badge/XGBoost-2.0.3-orange)](https://xgboost.readthedocs.io)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.x-red?logo=pytorch)](https://pytorch.org)
@@ -8,6 +7,8 @@
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](LICENSE)
 
 > A production-grade, hybrid Intrusion Detection System that combines a high-accuracy supervised machine learning classifier (XGBoost) with an unsupervised deep learning Autoencoder (PyTorch) to detect **both known attacks and zero-day anomalies** in network traffic — with full SHAP-based explainability for SOC analysts.
+
+![Dashboard Preview](results/dashboard_preview.png)
 
 ---
 
@@ -83,9 +84,9 @@ The system is fully **explainable** via SHAP (SHapley Additive exPlanations), en
 | Model | Accuracy | Precision | Recall | F1-Score | ROC-AUC |
 |:---|:---:|:---:|:---:|:---:|:---:|
 | Random Forest (Baseline) | 99.85% | 99.75% | 99.62% | 99.69% | 99.99% |
-| XGBoost (Optimised) | 99.89% | 99.74% | 99.79% | 99.77% | 99.99% |
-| Autoencoder (Standalone) | 83.54% | 92.42% | 35.57% | 51.37% | 79.87% |
-| **Hybrid IDS (Final System)** | **99.17%** | **96.92%** | **99.79%** | **98.33%** | **99.99%** |
+| XGBoost (Optimised) | 99.90% | 99.75% | 99.83% | 99.79% | 99.99% |
+| Autoencoder (Standalone) | 83.93% | 92.60% | 37.22% | 53.09% | 75.99% |
+| **Hybrid IDS (Final System)** | **99.17%** | **96.87%** | **99.83%** | **98.33%** | **99.99%** |
 
 > **Note:** The Autoencoder's lower standalone recall is expected — it was designed to detect *unknown* anomalies, not classify known labelled attack families. Its real strength emerges inside the Hybrid system.
 
@@ -331,5 +332,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 <div align="center">
   <sub>Built as part of a Security Operations Centre (SOC) Research Project.</sub>
 </div>
-=======
-# Intelligent-Intrusion-Detection-System-for-Encrypted-Network-Traffic
