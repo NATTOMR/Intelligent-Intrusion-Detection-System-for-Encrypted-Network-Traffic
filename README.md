@@ -323,6 +323,16 @@ This result motivates several important research directions including transfer l
 
 ---
 
+## References
+
+1. **CICIDS2017 Dataset**: Sharafaldin, I., Lashkari, A. H., & Ghorbani, A. A. (2018). *Toward Generating a New Intrusion Detection Dataset and Intrusion Traffic Characterization*. ICISSP. [Link](https://www.unb.ca/cic/datasets/ids-2017.html)
+2. **UNSW-NB15 Dataset**: Moustafa, N., & Slay, J. (2015). *UNSW-NB15: a comprehensive data set for network intrusion detection systems*. MilCIS. [Link](https://research.unsw.edu.au/projects/unsw-nb15-dataset)
+3. **XGBoost**: Chen, T., & Guestrin, C. (2016). *XGBoost: A Scalable Tree Boosting System*. KDD. [Link](https://arxiv.org/abs/1603.02754)
+4. **SHAP**: Lundberg, S. M., & Lee, S.-I. (2017). *A Unified Approach to Interpreting Model Predictions*. NeurIPS. [Link](https://arxiv.org/abs/1705.07874)
+5. **PyTorch**: Paszke, A., et al. (2019). *PyTorch: An Imperative Style, High-Performance Deep Learning Library*. NeurIPS. [Link](https://arxiv.org/abs/1912.01703)
+
+---
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
